@@ -51,13 +51,16 @@ output$ui_doe_levels <- renderUI({
 output$ui_doe <- renderUI({
   tagList(
     wellPanel(
+      actionButton("doe_run", "Create", width = "100%")
+    ),
+    wellPanel(
       tags$table(
         tags$td(numericInput("doe_max", label = "Max levels:", min = 2, max = 10,
-                   value = state_init("doe_max", init = 2), width = "77px")),
+                   value = state_init("doe_max", init = 2), width = "80px")),
         tags$td(numericInput("doe_trials", label = "# trials:", min = 0,
-                   value = state_init("doe_trials", init = NA), width = "77px")),
+                   value = state_init("doe_trials", init = NA), width = "65px")),
         tags$td(numericInput("doe_seed", label = "Rnd. seed:", min = 0,
-                   value = state_init("doe_seed", init = 172110), width = "77px"))
+                   value = state_init("doe_seed", init = 172110), width = "100%"))
       ),
       HTML("<label>Variable name: <i id='doe_add' title='Add variable' href='#' class='action-button fa fa-plus-circle'></i>
             <i id='doe_del' title='Remove variable' href='#' class='action-button fa fa-minus-circle'></i></label>"),
@@ -68,16 +71,12 @@ output$ui_doe <- renderUI({
       uiOutput("ui_doe_int")
     ),
     wellPanel(
-      actionButton("doe_run", "Create"),
-      downloadButton('doe_download_part', 'Partial'),
-      downloadButton('doe_download_full', 'Full')
-    ),
-    wellPanel(
-
-      HTML("<label>Upload factors:</label><div class='form-group shiny-input-container'>
-              <input id='doe_upload' name='doe_upload' type='file' accept='.txt'/>
-            </div><br><label>Download factors:</label><br>"),
-      downloadButton('doe_download', 'Download')
+      HTML("<label>Download factorial design:</label></br>"),
+      downloadButton("doe_download_part", "Partial"),
+      downloadButton("doe_download_full", "Full"),
+      HTML("</br><label>Download factors:</label></br>"),
+      downloadButton("doe_download", "Factors"),
+      fileInput("doe_upload", "Upload factors:", multiple = FALSE, accept = ".txt")
     ),
     help_and_report(modal_title = "Design of Experiments", fun_name = "doe",
                     help_file = inclMD(file.path(getOption("radiant.path.design"),"app/tools/help/doe.md")))
@@ -94,16 +93,16 @@ observeEvent(input$doe_add, {
   }
   dup <- paste(dup, collapse = "; ")
 
-  if (is_empty(input[["doe_factors"]]))
+  if (is_empty(input$doe_factors))
     val <- dup
   else
-    val <- paste0(dup, "\n", input[["doe_factors"]])
+    val <- paste0(input$doe_factors, "\n", dup)
 
   updateTextInput(session = session, "doe_factors", value = val)
 })
 
 observeEvent(input$doe_del, {
-  input[["doe_factors"]] %>% strsplit("\n") %>% unlist %>% .[-1] %>% paste0(collapse = "\n") %>%
+  input$doe_factors %>% strsplit("\n") %>% unlist %>% head(., -1) %>% paste0(collapse = "\n") %>%
     updateTextInput(session = session, "doe_factors", value = .)
 })
 
@@ -151,25 +150,25 @@ output$doe <- renderUI({
 })
 
 output$doe_download_part <- downloadHandler(
-  filename = function() { 'part_factorial.csv' },
+  filename = function() { "part_factorial.csv" },
   content = function(file) {
     .doe() %>%
     { if (class(.)[1] == "character") . else .$part } %>%
-    write.csv(file)
+    write.csv(file, row.names = FALSE)
   }
 )
 
 output$doe_download_full <- downloadHandler(
-  filename = function() { 'full_factorial.csv' },
+  filename = function() { "full_factorial.csv" },
   content = function(file) {
     .doe() %>%
     { if (class(.)[1] == "character") . else .$full } %>%
-    write.csv(file)
+    write.csv(file, row.names = FALSE)
   }
 )
 
 output$doe_download <- downloadHandler(
-  filename = function() { 'design_factors.txt' },
+  filename = function() { "design_factors.txt" },
   content = function(file) {
     cat(paste0(input$doe_factors,"\n"), file  = file)
   }
@@ -190,7 +189,7 @@ observeEvent(input$doe_upload, {
 })
 
 observeEvent(input$doe_report, {
-  xcmd <- "# write.csv(result$part, file = '~/part_factorial.csv')"
+  xcmd <- "# write.csv(result$part, file = \"~/part_factorial.csv\")"
   inp_out = list(list(eff = TRUE, part = TRUE, full = TRUE))
   update_report(inp_main = clean_args(doe_inputs(), doe_args),
                 fun_name = "doe",
