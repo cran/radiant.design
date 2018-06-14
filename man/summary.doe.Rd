@@ -4,7 +4,8 @@
 \alias{summary.doe}
 \title{Summary method for doe function}
 \usage{
-\method{summary}{doe}(object, eff = TRUE, part = TRUE, full = TRUE, ...)
+\method{summary}{doe}(object, eff = TRUE, part = TRUE, full = TRUE,
+  dec = 3, ...)
 }
 \arguments{
 \item{object}{Return value from \code{\link{doe}}}
@@ -15,6 +16,8 @@
 
 \item{full}{If TRUE print full factorial}
 
+\item{dec}{Number of decimals to show}
+
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
@@ -24,7 +27,9 @@ Summary method for doe function
 See \url{https://radiant-rstats.github.io/docs/design/doe.html} for an example in Radiant
 }
 \examples{
-"price; $10; $13; $16\\nfood; popcorn; gourmet; no food" \%>\% doe \%>\% summary
+c("price; $10; $13; $16", "food; popcorn; gourmet; no food") \%>\%
+  doe() \%>\%
+  summary()
 
 }
 \seealso{

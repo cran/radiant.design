@@ -1,12 +1,12 @@
 # to avoid 'no visible binding for global variable' NOTE
-globalVariables(c(".","rnd_number"))
+globalVariables(c(".", "rnd_number"))
 
 #' radiant.design
 #'
 #' @name radiant.design
 #' @docType package
 #' @import radiant.data shiny mvtnorm
-#' @importFrom dplyr %>% arrange arrange_ desc slice
+#' @importFrom dplyr %>% arrange arrange_at desc
 #' @importFrom methods is
 #' @importFrom stats as.formula cor na.omit power.prop.test power.t.test qnorm runif
 #' @importFrom import from

@@ -12,8 +12,13 @@ radiant.design()
 \description{
 radiant.design
 
-Launch Radiant in the default browser
+Launch radiant.design in the default browser
 }
 \details{
 See \url{https://radiant-rstats.github.io/docs} for documentation and tutorials
+}
+\examples{
+\dontrun{
+radiant.design()
+}
 }
