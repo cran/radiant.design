@@ -4,21 +4,33 @@
 \alias{sampling}
 \title{Simple random sampling}
 \usage{
-sampling(dataset, var, sample_size, seed = NA, data_filter = "")
+sampling(
+  dataset,
+  vars,
+  sample_size,
+  seed = 1234,
+  data_filter = "",
+  na.rm = FALSE,
+  envir = parent.frame()
+)
 }
 \arguments{
 \item{dataset}{Dataset to sample from}
 
-\item{var}{The variable to sample}
+\item{vars}{The variables to sample}
 
 \item{sample_size}{Number of units to select}
 
 \item{seed}{Random seed to use as the starting point}
 
 \item{data_filter}{Expression entered in, e.g., Data > View to filter the dataset in Radiant. The expression should be a string (e.g., "price > 10000")}
+
+\item{na.rm}{Remove rows with missing values (FALSE or TRUE)}
+
+\item{envir}{Environment to extract data from}
 }
 \value{
-A list of variables defined in sampling as an object of class sampling
+A list  of class 'sampling' with all variables defined in the sampling function
 }
 \description{
 Simple random sampling
