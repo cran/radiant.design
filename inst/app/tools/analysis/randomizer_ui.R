@@ -85,7 +85,7 @@ output$ui_randomizer <- renderUI({
     wellPanel(
       tags$table(
         tags$td(uiOutput("ui_rndr_name")),
-        tags$td(actionButton("rndr_store", "Store", icon = icon("plus")), style = "padding-top:30px;")
+        tags$td(actionButton("rndr_store", "Store", icon = icon("plus")), class = "top")
       )
     ),
     help_and_report(
@@ -156,7 +156,7 @@ observeEvent(input$randomizer_report, {
 
   xcmd <- "# dtab(result$dataset, dom = \"tip\", nr = 100)"
 
-  if (!is_empty(input$rndr_name)) {
+  if (!radiant.data::is_empty(input$rndr_name)) {
     dataset <- fix_names(input$rndr_name)
     if (input$rndr_name != dataset) {
       updateTextInput(session, inputId = "rndr_name", value = dataset)
