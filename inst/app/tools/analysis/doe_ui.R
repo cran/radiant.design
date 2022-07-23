@@ -54,7 +54,7 @@ run_refresh(doe_args, "doe", init = "factors", label = "Create design", relabel 
 output$ui_doe <- renderUI({
   tagList(
     wellPanel(
-      actionButton("doe_run", "Create design", width = "100%", icon = icon("play"), class = "btn-success")
+      actionButton("doe_run", "Create design", width = "100%", icon = icon("play", verify_fa = FALSE), class = "btn-success")
     ),
     wellPanel(
       tags$table(
@@ -283,7 +283,7 @@ observeEvent(input$doe_upload, {
   }
 })
 
-observeEvent(input$doe_report, {
+doe_report <- function() {
   if (getOption("radiant.local", default = FALSE)) {
     pdir <- getOption("radiant.launch_dir")
     xcmd <- paste0('# write.csv(result$part, file = "part_factorial.csv")')
@@ -305,4 +305,19 @@ observeEvent(input$doe_report, {
     figs = FALSE,
     xcmd = xcmd
   )
+}
+
+observeEvent(input$doe_report, {
+  r_info[["latest_screenshot"]] <- NULL
+  doe_report()
+})
+
+observeEvent(input$doe_screenshot, {
+  r_info[["latest_screenshot"]] <- NULL
+  radiant_screenshot_modal("modal_doe_screenshot")
+})
+
+observeEvent(input$modal_doe_screenshot, {
+  doe_report()
+  removeModal() ## remove shiny modal after save
 })
