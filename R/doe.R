@@ -25,7 +25,6 @@
 #'
 #' @export
 doe <- function(factors, int = "", trials = NA, seed = NA) {
-
   df_list <- gsub("[ ]{2,}", " ", paste0(factors, collapse = "\n")) %>%
     gsub("/", "", .) %>%
     gsub("\\\\n", "\n", .) %>%
@@ -38,10 +37,12 @@ doe <- function(factors, int = "", trials = NA, seed = NA) {
     gsub("[ ]+", "_", .) %>%
     strsplit(., "\n") %>%
     .[[1]] %>%
-    strsplit(";")
+    strsplit(";\\s*")
 
   df_names <- c()
-  if (length(df_list) < 2) return("DOE requires at least two factors" %>% add_class("doe"))
+  if (length(df_list) < 2) {
+    return("DOE requires at least two factors" %>% add_class("doe"))
+  }
 
   for (i in seq_len(length(df_list))) {
     dt <- df_list[[i]] %>% gsub("^\\s+|\\s+$", "", .)
@@ -51,12 +52,12 @@ doe <- function(factors, int = "", trials = NA, seed = NA) {
   names(df_list) <- df_names
   model <- paste0("~ ", paste0(df_names, collapse = " + "))
   nInt <- 0
-  if (!radiant.data::is_empty(int)) {
+  if (!is.empty(int)) {
     model <- paste0(model, " + ", paste0(int, collapse = " + "))
     nInt <- length(int)
   }
 
-  part_fac <- function(df, model = ~ ., int = 0, trials = NA, seed = 172110) {
+  part_fac <- function(df, model = ~., int = 0, trials = NA, seed = 172110) {
     full <- expand.grid(df)
 
     ###############################################
@@ -71,25 +72,26 @@ doe <- function(factors, int = "", trials = NA, seed = NA) {
     max_trials <- nrow(full)
 
     ## make sure the number of trials set by the user is within an appropriate range
-    if (!radiant.data::is_empty(trials)) {
+    if (!is.empty(trials)) {
       max_trials <- min_trials <- max(min(trials, max_trials), min_trials)
     }
 
     ## define a data.frame that will store design spec
     eff <- data.frame(
-        Trials = min_trials:max_trials,
-        "D-efficiency" = NA,
-        "Balanced" = NA,
-        check.names = FALSE,
-        stringsAsFactors = FALSE
-      )
+      Trials = min_trials:max_trials,
+      "D-efficiency" = NA,
+      "Balanced" = NA,
+      check.names = FALSE,
+      stringsAsFactors = FALSE
+    )
 
     for (i in min_trials:max_trials) {
-      seed %>% gsub("[^0-9]", "", .) %>% {
-        if (!radiant.data::is_empty(.)) set.seed(seed)
-      }
+      seed %>%
+        gsub("[^0-9]", "", .) %>%
+        (function(x) if (!is.empty(x)) set.seed(seed))
       design <- try(AlgDesign::optFederov(
-        model, data = full, nRepeats = 50,
+        model,
+        data = full, nRepeats = 50,
         nTrials = i, maxIteration = 1000,
         approximate = FALSE
       ), silent = TRUE)
@@ -112,9 +114,8 @@ doe <- function(factors, int = "", trials = NA, seed = NA) {
       full <- arrange_at(full, .vars = names(df)) %>%
         data.frame(trial = 1:nrow(full), ., stringsAsFactors = FALSE)
 
-      part <- arrange_at(design$design, .vars = names(df)) %>% {
-        suppressMessages(dplyr::right_join(full, .))
-      }
+      part <- arrange_at(design$design, .vars = names(df)) %>%
+        (function(x) suppressMessages(dplyr::right_join(full, x)))
 
       list(
         df = df,
@@ -158,12 +159,14 @@ doe <- function(factors, int = "", trials = NA, seed = NA) {
 #'
 #' @export
 summary.doe <- function(object, eff = TRUE, part = TRUE, full = TRUE, est = TRUE, dec = 3, ...) {
-  if (!is.list(object)) return(object)
+  if (!is.list(object)) {
+    return(object)
+  }
 
   cat("Experimental design\n")
   cat("# trials for partial factorial:", nrow(object$part), "\n")
   cat("# trials for full factorial   :", nrow(object$full), "\n")
-  if (!radiant.data::is_empty(object$seed)) {
+  if (!is.empty(object$seed)) {
     cat("Random seed                   :", object$seed, "\n")
   }
 
@@ -208,10 +211,9 @@ summary.doe <- function(object, eff = TRUE, part = TRUE, full = TRUE, est = TRUE
 #' @examples
 #' design <- doe(c("price; $10; $13; $16", "food; popcorn; gourmet; no food"), trials = 6)
 #' estimable(design)
-#
+#'
 #' @export
 estimable <- function(design) {
-
   if (!inherits(design, "doe")) {
     return(add_class("The estimable function requires input of type 'doe'. Please use the ratiant.design::doe function to generate an appropriate design", "doe"))
   }

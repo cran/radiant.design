@@ -4,13 +4,14 @@ doe_args <- as.list(formals(doe))
 ## list of function inputs selected by user
 doe_inputs <- reactive({
   ## loop needed because reactive values don't allow single bracket indexing
-  for (i in names(doe_args))
+  for (i in names(doe_args)) {
     doe_args[[i]] <- input[[paste0("doe_", i)]]
+  }
   doe_args
 })
 
 output$ui_doe_int <- renderUI({
-  req(!radiant.data::is_empty(input$doe_factors))
+  req(!is.empty(input$doe_factors))
   vars <- gsub("[ ]{2,}", " ", input$doe_factors) %>%
     gsub("/", "", .) %>%
     gsub("\\\\n", "\n", .) %>%
@@ -23,7 +24,7 @@ output$ui_doe_int <- renderUI({
     gsub("[ ]+", "_", .) %>%
     strsplit(., "\n") %>%
     .[[1]] %>%
-    strsplit(";") %>%
+    strsplit(";\\s*") %>%
     sapply(function(x) x[1]) %>%
     unique()
 
@@ -31,7 +32,8 @@ output$ui_doe_int <- renderUI({
   choices <- iterms(vars, 2)
 
   selectInput(
-    "doe_int", label = "Interactions:", choices = choices,
+    "doe_int",
+    label = "Interactions:", choices = choices,
     selected = state_init("doe_int"),
     multiple = TRUE, size = min(3, length(choices)), selectize = FALSE
   )
@@ -60,22 +62,25 @@ output$ui_doe <- renderUI({
       tags$table(
         tags$td(
           numericInput(
-            "doe_max", label = "Max levels:", min = 2, max = 10,
+            "doe_max",
+            label = "Max levels:", min = 2, max = 10,
             value = state_init("doe_max", init = 2),
             width = "80px"
           )
         ),
         tags$td(
           numericInput(
-            "doe_trials", label = "# trials:", min = 1, step = 1,
+            "doe_trials",
+            label = "# trials:", min = 1, step = 1,
             value = state_init("doe_trials", init = NA),
             width = "65px"
           )
         ),
         tags$td(
           numericInput(
-            "doe_seed", label = "Rnd. seed:", min = 0,
-            value = state_init("doe_seed", init = 1234),  ## prev default seed 172110
+            "doe_seed",
+            label = "Rnd. seed:", min = 0,
+            value = state_init("doe_seed", init = 1234), ## prev default seed 172110
             width = "100%"
           )
         )
@@ -98,7 +103,8 @@ output$ui_doe <- renderUI({
       download_button("doe_download", "Factors", class = "btn-primary"),
       HTML("</br><label>Upload factors:</label></br>"),
       file_upload_button(
-        "doe_upload", label = "Upload factors", accept = ".txt",
+        "doe_upload",
+        label = "Upload factors", accept = ".txt",
         buttonLabel = "Factors", title = "Upload DOE factors", class = "btn-primary"
       )
     ),
@@ -115,11 +121,11 @@ observeEvent(input$doe_add, {
   dup <- input$doe_name
   for (i in 1:input$doe_max) {
     dtmp <- input[[paste0("doe_level", i)]]
-    if (!radiant.data::is_empty(dtmp)) dup <- c(dup, dtmp)
+    if (!is.empty(dtmp)) dup <- c(dup, dtmp)
   }
   dup <- paste(dup, collapse = "; ")
 
-  if (radiant.data::is_empty(input$doe_factors)) {
+  if (is.empty(input$doe_factors)) {
     val <- dup
   } else {
     val <- paste0(input$doe_factors, "\n", dup)
@@ -137,11 +143,8 @@ observeEvent(input$doe_del, {
     updateTextInput(session = session, "doe_factors", value = .)
 })
 
-doe_maker <- function(
-  id = "factors", rows = 5, pre = "doe_",
-  placeholder = "Upload an experimental design using the 'Upload factors' button or create a new design using the inputs on the left of the screen. For help, click the ? icon on the bottom left of the screen"
-) {
-
+doe_maker <- function(id = "factors", rows = 5, pre = "doe_",
+                      placeholder = "Upload an experimental design using the 'Upload factors' button or create a new design using the inputs on the left of the screen. For help, click the ? icon on the bottom left of the screen") {
   id <- paste0(pre, id)
   tags$textarea(
     state_init(id),
@@ -182,7 +185,7 @@ output$doe <- renderUI({
 })
 
 .doe <- eventReactive(input$doe_run, {
-  req(!radiant.data::is_empty(input$doe_factors))
+  req(!is.empty(input$doe_factors))
 
   int <- ""
   if (length(input$doe_int) > 0) {
@@ -200,7 +203,7 @@ output$doe <- renderUI({
 
 dl_doe_download_part <- function(path) {
   .doe() %>%
-    {if (class(.)[1] == "character") . else .$part} %>%
+    (function(x) if (class(x)[1] == "character") x else x$part) %>%
     write.csv(path, row.names = FALSE)
 }
 
@@ -215,7 +218,7 @@ download_handler(
 
 dl_doe_download_full <- function(path) {
   .doe() %>%
-    {if (class(.)[1] == "character") . else .$full} %>%
+    (function(x) if (class(x)[1] == "character") x else x$pull) %>%
     write.csv(path, row.names = FALSE)
 }
 
@@ -256,7 +259,7 @@ if (!getOption("radiant.shinyFiles", FALSE)) {
 observeEvent(input$doe_upload, {
   if (getOption("radiant.shinyFiles", FALSE)) {
     path <- shinyFiles::parseFilePaths(sf_volumes, input$doe_upload)
-    if (inherits(path, "try-error") || radiant.data::is_empty(path$datapath)) {
+    if (inherits(path, "try-error") || is.empty(path$datapath)) {
       return()
     } else {
       path <- path$datapath
@@ -293,7 +296,7 @@ doe_report <- function() {
   inp_out <- list(list(eff = TRUE, part = TRUE, full = TRUE))
 
   inp <- clean_args(doe_inputs(), doe_args)
-  if (!radiant.data::is_empty(inp[["factors"]])) {
+  if (!is.empty(inp[["factors"]])) {
     inp[["factors"]] <- strsplit(inp[["factors"]], "\n")[[1]]
   }
 
