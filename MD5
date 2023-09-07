@@ -1,8 +1,8 @@
-add06e6bb03c2e5a2ef33b5b3f762a20 *DESCRIPTION
+5c87b4f4392531df2fd7ecb788f0d0bf *DESCRIPTION
 7940af03b2d6a22126d5fd2ca18516fc *LICENSE
 d7df7e5001a1b5e24d34cd5959314036 *NAMESPACE
-cdbb16ca164c103087543085fcd83732 *NEWS.md
-9c109cd66a833f60b69f0ea12bbac74f *R/aaa.R
+f190395f03f3f3171e5235525ca81e9d *NEWS.md
+54f17c6464415c316e452a7f72cfbcaa *R/aaa.R
 74d313baf85a7671109c7a446ef07ecc *R/doe.R
 99c51e182ea325616893d41d3b7fee9d *R/radiant.R
 fb018245a8cde9a5bf55388b233f7117 *R/randomizer.R
@@ -37,12 +37,12 @@ d1eba57ef0c95bbf6f645222ab044033 *inst/app/tools/help/figures/sample_size_ex1b.p
 4033c71a5dc40fa167e4f99a2f7a8a92 *inst/app/tools/help/sample_size_comp.Rmd
 4033c71a5dc40fa167e4f99a2f7a8a92 *inst/app/tools/help/sample_size_comp.md
 36cf5ec4d62cbe28cd49f8a0c36fff16 *inst/app/tools/help/sampling.md
-9c77b2ecb75276a83cb85c817aef68b5 *inst/app/ui.R
+d07f0f70160c16a614825b4b9f551a5b *inst/app/ui.R
 0458d3ce578e3cd2c3398b99abf0161e *inst/app/www/js/run_return.js
 4dcafe7e044b670826527fda1eee3e9c *man/doe.Rd
 7de56074ad34ea98de52b312cb5dc5de *man/estimable.Rd
 ed21194bf3c8f38c8b9f7a2fd53ef3a0 *man/plot.sample_size_comp.Rd
-db24c5dcff6f3517cf995b09fdc15d7a *man/radiant.design.Rd
+d5f99a005a89e7d805f57552af46da11 *man/radiant.design.Rd
 97623f0bb4cbb897bfa9cbd9c34cc2fd *man/radiant.design_viewer.Rd
 ca3ce8cfd7bb39f3e5ab6b2191c7b963 *man/radiant.design_window.Rd
 09cfddc410f5eb2796271f461137877c *man/randomizer.Rd
